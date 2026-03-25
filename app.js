@@ -297,6 +297,7 @@ const runtime = {
   pendingResetResolve: null,
   gameLogs: [],
   overlayRenderToken: 0,
+  overlayRenderPending: false,
   renderInProgress: false,
   renderQueued: false,
   renderQueuedOptions: null,
@@ -8561,10 +8562,8 @@ function triggerShuffleAnimation(deckZoneId) {
 }
 
 function cleanupDragPreview() {
-  if (state.dragPreviewEl && state.dragPreviewEl.parentElement) {
-    state.dragPreviewEl.remove();
-  }
-  state.dragPreviewEl = null;
+  // 不移除 drag preview 元素，保持在 DOM 中避免 Chromium 內部引用已銷毀元素導致崩潰
+  // 元素本身是 1x1 透明 GIF，位於畫面外 (top:-9999px)，不影響顯示
 }
 
 function clearRetainedImageHandles() {
@@ -9182,6 +9181,11 @@ function createCardElement(card, options = {}) {
     setDragCursorIndicatorVisible(false);
     cleanupDragPreview();
     hideCardZoom();
+    // 補回拖曳期間延遲的 overlay 重新渲染
+    if (runtime.overlayRenderPending) {
+      runtime.overlayRenderPending = false;
+      requestAnimationFrame(() => renderOverlayView());
+    }
   });
 
   return el;
@@ -9533,7 +9537,13 @@ function renderBoard(options = {}) {
     });
 
     if (renderOptions.overlay) {
-      renderOverlayView();
+      // 拖曳進行中時延遲 overlay 重新渲染，避免被拖曳的 DOM 元素被銷毀導致 Chromium 崩潰
+      if (state.draggingCardIds.length > 0 && state.overlay.isOpen) {
+        runtime.overlayRenderPending = true;
+      } else {
+        runtime.overlayRenderPending = false;
+        renderOverlayView();
+      }
     }
     if (renderOptions.indicators) {
       updateActiveTypeHints();
@@ -9819,10 +9829,15 @@ function setupDropzones() {
         payloadIds = state.draggingCardIds;
       }
 
-      handleDrop(zoneId, payloadIds);
       state.draggingCardIds = [];
+      handleDrop(zoneId, payloadIds);
       updateDraggingUi();
       setDragCursorIndicatorVisible(false);
+      // 補回拖曳期間延遲的 overlay 重新渲染
+      if (runtime.overlayRenderPending) {
+        runtime.overlayRenderPending = false;
+        requestAnimationFrame(() => renderOverlayView());
+      }
     });
   });
 
@@ -9899,10 +9914,15 @@ function setupDropzones() {
       payloadIds = state.draggingCardIds;
     }
 
-    handleDrop(state.overlay.zoneId, payloadIds);
     state.draggingCardIds = [];
+    handleDrop(state.overlay.zoneId, payloadIds);
     updateDraggingUi();
     setDragCursorIndicatorVisible(false);
+    // 補回拖曳期間延遲的 overlay 重新渲染
+    if (runtime.overlayRenderPending) {
+      runtime.overlayRenderPending = false;
+      requestAnimationFrame(() => renderOverlayView());
+    }
   });
 }
 

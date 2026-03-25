@@ -194,6 +194,14 @@ function createWindow() {
       type: "render-process-gone",
       details
     }).catch(() => {});
+    // 渲染進程崩潰時自動重新載入，避免白屏
+    if (details && details.reason !== "clean-exit") {
+      setTimeout(() => {
+        if (win && !win.isDestroyed()) {
+          win.webContents.reload();
+        }
+      }, 800);
+    }
   });
 
   win.webContents.on("unresponsive", () => {

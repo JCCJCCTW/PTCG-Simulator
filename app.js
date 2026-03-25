@@ -3999,7 +3999,19 @@ function renderDeckBuilderCardDetail() {
         versionSelect.appendChild(option);
       });
       versionSelect.addEventListener("change", () => {
-        selectDeckBuilderCatalogCard(versionSelect.value || versionCards[0].key);
+        const newKey = versionSelect.value || versionCards[0].key;
+        const newCard = runtime.deckBuilderCardMap.get(newKey);
+        const currentDeckEntry = resolveDeckBuilderSelectedEntry();
+        if (currentDeckEntry && newCard) {
+          // 來自牌組清單的版本切換：更新 entry 的 card 並保持選取
+          currentDeckEntry.card = newCard;
+          currentDeckEntry.key = newCard.key;
+          state.deckBuilder.selectedCardKey = newCard.key;
+          // 不清除 selectedDeckEntryKey，維持牌組清單選取狀態
+        } else {
+          selectDeckBuilderCatalogCard(newKey);
+        }
+        runtime.deckBuilderVirtualStartIndex = -1;
         renderDeckBuilderCardList();
         renderDeckBuilderCardDetail();
         renderDeckBuilderDeckList();
@@ -4224,7 +4236,9 @@ function renderDeckBuilderCardList() {
   const visibleCount = Math.max(100, Math.ceil(viewportHeight / rowHeight) + overscan * 2);
   const endIndex = Math.min(grouped.length, startIndex + visibleCount);
 
-  if (runtime.deckBuilderVirtualStartIndex === startIndex && host.querySelector(".deck-builder-virtual-layer")) {
+  // 虛擬滾動快取：只有在 startIndex 相同且資料筆數未改變時才跳過重繪
+  const prevGroupCount = runtime.deckBuilderVirtualGroupCount || -1;
+  if (runtime.deckBuilderVirtualStartIndex === startIndex && prevGroupCount === grouped.length && host.querySelector(".deck-builder-virtual-layer")) {
     updateDeckBuilderCardSelectionUi();
     if (Math.abs((host.scrollTop || 0) - desiredScrollTop) > 1) {
       host.scrollTop = desiredScrollTop;
@@ -4234,6 +4248,7 @@ function renderDeckBuilderCardList() {
   }
 
   runtime.deckBuilderVirtualStartIndex = startIndex;
+  runtime.deckBuilderVirtualGroupCount = grouped.length;
   host.innerHTML = "";
 
   const spacer = document.createElement("div");
@@ -4912,6 +4927,7 @@ function setupDeckBuilder() {
   }
   if (resetFiltersBtn) {
     resetFiltersBtn.addEventListener("click", () => {
+      state.deckBuilder.search = "";
       state.deckBuilder.seriesFilter = "";
       state.deckBuilder.typeFilter = "";
       state.deckBuilder.attributeFilter = "";
@@ -4920,6 +4936,9 @@ function setupDeckBuilder() {
       state.deckBuilder.retreatCostFilter = [];
       state.deckBuilder.abilitiesFilter = [];
       state.deckBuilder.advancedFiltersOpen = false;
+      if (searchInput) {
+        searchInput.value = "";
+      }
       renderDeckBuilderFilters();
       runtime.deckBuilderCardListScrollTop = 0;
       if (cardListHost) {

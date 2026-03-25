@@ -20,6 +20,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-mac:
     if: ${{ inputs.platform == 'mac' || inputs.platform == 'all' }}
@@ -29,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
@@ -53,7 +56,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
@@ -72,12 +75,29 @@ jobs:
     if: ${{ always() && (needs.build-mac.result == 'success' || needs.build-windows.result == 'success') }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download all artifacts
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: images
+          sparse-checkout-cone-mode: true
+
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: List files
+      - name: Package images separately
+        run: |
+          cd images
+          zip -r -0 ../artifacts/PTCG-Card-Images.zip . -x ".*"
+          cd ..
+          # Split if over 1.9GB
+          FILE_SIZE=$(stat -c%s "artifacts/PTCG-Card-Images.zip" 2>/dev/null || stat -f%z "artifacts/PTCG-Card-Images.zip")
+          if [ "$FILE_SIZE" -gt 1900000000 ]; then
+            split -b 1900m artifacts/PTCG-Card-Images.zip artifacts/PTCG-Card-Images.zip.part-
+            rm artifacts/PTCG-Card-Images.zip
+          fi
+
+      - name: List release files
         run: find artifacts -type f
 
       - name: Create Release
@@ -88,12 +108,22 @@ jobs:
           body: |
             ## PTCG 寶可夢卡牌模擬器 v${{ inputs.version }}
 
-            ### 下載方式
-            - **Windows**：下載 `.exe` 檔案，直接執行
-            - **macOS (Intel)**：下載 `x64.zip`，解壓後執行
-            - **macOS (Apple Silicon M1/M2/M3)**：下載 `arm64.zip`，解壓後執行
+            ### 📥 下載說明
 
-            > ⚠️ macOS 首次開啟需要：右鍵 → 打開 → 確認打開
+            | 檔案 | 說明 |
+            |------|------|
+            | `PTCG-Simulator-Portable-*.exe` | **Windows** — 直接執行 |
+            | `*-x64.zip` | **macOS Intel** — 解壓後執行 |
+            | `*-arm64.zip` | **macOS Apple Silicon (M1/M2/M3/M4)** — 解壓後執行 |
+            | `PTCG-Card-Images.zip*` | **卡片圖片（選用）** — 離線使用用 |
+
+            ### 🖼️ 關於卡片圖片
+            - 程式預設使用**線上圖片**，不需要額外下載即可正常使用
+            - 如果想要**離線使用**，下載 `PTCG-Card-Images.zip` 並解壓到程式同目錄的 `images` 資料夾
+
+            ### ⚠️ 注意事項
+            - macOS 首次開啟需要：**右鍵 → 打開 → 確認打開**
+            - Windows 可能跳出 SmartScreen 警告，點擊「仍要執行」即可
           files: artifacts/**/*
           draft: false
           prerelease: false

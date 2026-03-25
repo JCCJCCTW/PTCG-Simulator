@@ -1,4 +1,4 @@
-name: Build App
+name: Build & Release
 
 on:
   workflow_dispatch:
@@ -12,6 +12,13 @@ on:
           - all
           - mac
           - windows
+      version:
+        description: 'Release version (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+permissions:
+  contents: write
 
 jobs:
   build-mac:
@@ -59,3 +66,34 @@ jobs:
         with:
           name: PTCG-Simulator-Windows
           path: dist/*.exe
+
+  release:
+    needs: [build-mac, build-windows]
+    if: ${{ always() && (needs.build-mac.result == 'success' || needs.build-windows.result == 'success') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List files
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: PTCG Simulator v${{ inputs.version }}
+          body: |
+            ## PTCG 寶可夢卡牌模擬器 v${{ inputs.version }}
+
+            ### 下載方式
+            - **Windows**：下載 `.exe` 檔案，直接執行
+            - **macOS (Intel)**：下載 `x64.zip`，解壓後執行
+            - **macOS (Apple Silicon M1/M2/M3)**：下載 `arm64.zip`，解壓後執行
+
+            > ⚠️ macOS 首次開啟需要：右鍵 → 打開 → 確認打開
+          files: artifacts/**/*
+          draft: false
+          prerelease: false

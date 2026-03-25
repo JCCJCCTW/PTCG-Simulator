@@ -88,14 +88,7 @@ jobs:
       - name: Package images separately
         run: |
           cd images
-          zip -r -0 ../artifacts/PTCG-Card-Images.zip . -x ".*"
-          cd ..
-          # Split if over 1.9GB
-          FILE_SIZE=$(stat -c%s "artifacts/PTCG-Card-Images.zip" 2>/dev/null || stat -f%z "artifacts/PTCG-Card-Images.zip")
-          if [ "$FILE_SIZE" -gt 1900000000 ]; then
-            split -b 1900m artifacts/PTCG-Card-Images.zip artifacts/PTCG-Card-Images.zip.part-
-            rm artifacts/PTCG-Card-Images.zip
-          fi
+          zip -r -9 ../artifacts/PTCG-Card-Images.zip . -x ".*"
 
       - name: List release files
         run: find artifacts -type f

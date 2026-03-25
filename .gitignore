@@ -19,9 +19,6 @@ dist/
 dist-onefile-build/
 out/
 
-# ── 圖片資源 (太大，另外分享) ──
-images/
-
 # ── OS / Editor ──
 .DS_Store
 Thumbs.db

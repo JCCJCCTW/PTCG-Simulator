@@ -1,0 +1,77 @@
+{
+  "name": "ptcg-simulator",
+  "version": "1.0.0",
+  "description": "PTCG Battle Simulator (Electron Desktop)",
+  "main": "main.js",
+  "author": "Joe Chou",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable",
+    "dist:onefile": "powershell -ExecutionPolicy Bypass -File .\\scripts\\build-onefile.ps1",
+    "generate:icons": "node .\\scripts\\generate-icons.js",
+    "dist:mac": "electron-builder --mac zip",
+    "dist:mac:dmg": "electron-builder --mac dmg"
+  },
+  "dependencies": {
+    "peerjs": "^1.5.4"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "icon-gen": "^5.0.0",
+    "sharp": "^0.34.5"
+  },
+  "build": {
+    "appId": "com.joechou.ptcg.simulator",
+    "productName": "PTCG Simulator",
+    "files": [
+      "index.html",
+      "styles.css",
+      "app.js",
+      "assets/**",
+      "wallpapers/**",
+      "main.js",
+      "vendor/**",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true,
+    "win": {
+      "icon": "assets/app-icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": false,
+      "legalTrademarks": "Network/WebRTC enabled"
+    },
+    "mac": {
+      "icon": "assets/app-icon.icns",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.games",
+      "artifactName": "PTCG-Simulator-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "PTCG-Simulator-Portable-${version}.exe"
+    },
+    "extraMetadata": {
+      "networkAccess": true
+    }
+  }
+}

@@ -33,6 +33,8 @@
       "wallpapers/**",
       "main.js",
       "vendor/**",
+      "deck-builder-data/**",
+      "images/**",
       "package.json"
     ],
     "directories": {

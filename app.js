@@ -4637,6 +4637,23 @@ function closeDeckBuilderModal() {
   closeDeckBuilderImportModal();
   closeDeckBuilderImagePreview();
   clearDeckBuilderRenderedMedia();
+
+  // 清除所有篩選、搜尋、快取
+  state.deckBuilder.search = "";
+  state.deckBuilder.seriesFilter = "";
+  state.deckBuilder.typeFilter = "";
+  state.deckBuilder.attributeFilter = "";
+  state.deckBuilder.subtypeFilter = "";
+  state.deckBuilder.evolutionFilter = [];
+  state.deckBuilder.retreatCostFilter = [];
+  state.deckBuilder.selectedCardKey = "";
+  state.deckBuilder.selectedDeckEntryKey = "";
+  runtime.deckBuilderSelectedDeckDisplayKey = "";
+  runtime.deckBuilderVirtualStartIndex = -1;
+  runtime.deckBuilderVirtualGroupCount = -1;
+  runtime.deckBuilderKeyboardScope = "catalog";
+  const searchInput = document.getElementById("deck-builder-search-input");
+  if (searchInput) searchInput.value = "";
 }
 
 function closeDeckBuilderImagePreview() {
@@ -4825,17 +4842,7 @@ function setupDeckBuilder() {
       closeDeckBuilderModal();
     });
   }
-  modal.addEventListener("pointerdown", (event) => {
-    if (IS_DECK_BUILDER_WINDOW) {
-      return;
-    }
-    if (state.deckBuilder.importModalOpen) {
-      return;
-    }
-    if (event.target === modal) {
-      closeDeckBuilderModal();
-    }
-  });
+  // 點擊邊緣不關閉，只能透過右上角 X 按鈕關閉
   if (importModal) {
     importModal.addEventListener("pointerdown", (event) => {
       event.stopPropagation();

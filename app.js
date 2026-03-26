@@ -4231,11 +4231,9 @@ function renderDeckBuilderCardList() {
     return;
   }
   const rowHeight = 90;
-  const visibleCount = 200;
-  const scrollRow = Math.floor(desiredScrollTop / rowHeight);
-  // 從捲動位置往前保留 20 行緩衝，往後渲染 180 行
-  const startIndex = Math.max(0, scrollRow - 20);
-  const endIndex = Math.min(grouped.length, startIndex + visibleCount);
+  // 一次渲染全部，不再做虛擬滾動分段
+  const startIndex = 0;
+  const endIndex = grouped.length;
 
   // 虛擬滾動快取：只有在 startIndex 相同且資料筆數未改變時才跳過重繪
   const prevGroupCount = runtime.deckBuilderVirtualGroupCount || -1;
@@ -5048,15 +5046,7 @@ function setupDeckBuilder() {
       _scrollRafPending = true;
       requestAnimationFrame(() => {
         _scrollRafPending = false;
-        const nextScrollRow = Math.floor(runtime.deckBuilderCardListScrollTop / 90);
-        const nextStartIndex = Math.max(0, nextScrollRow - 20);
-        // 當捲動位置即將超出已渲染範圍時重繪（前後 15 行安全邊距）
-        const prevEnd = runtime.deckBuilderVirtualStartIndex + 200;
-        const needsRender = nextScrollRow < runtime.deckBuilderVirtualStartIndex + 15
-                         || nextScrollRow > prevEnd - 25;
-        if (needsRender && nextStartIndex !== runtime.deckBuilderVirtualStartIndex) {
-          renderDeckBuilderCardList();
-        }
+        // 全量渲染模式，捲動時不需要重繪
       });
     }, { passive: true });
     cardListHost.addEventListener("pointerdown", () => {

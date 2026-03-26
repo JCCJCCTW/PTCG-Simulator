@@ -4231,10 +4231,10 @@ function renderDeckBuilderCardList() {
     return;
   }
   const rowHeight = 90;
-  const overscan = 50;
+  const overscan = 8;
   const viewportHeight = Math.max(host.clientHeight || 0, rowHeight * 6);
   const startIndex = Math.max(0, Math.floor(desiredScrollTop / rowHeight) - overscan);
-  const visibleCount = Math.max(100, Math.ceil(viewportHeight / rowHeight) + overscan * 2);
+  const visibleCount = Math.ceil(viewportHeight / rowHeight) + overscan * 2;
   const endIndex = Math.min(grouped.length, startIndex + visibleCount);
 
   // 虛擬滾動快取：只有在 startIndex 相同且資料筆數未改變時才跳過重繪
@@ -4250,7 +4250,6 @@ function renderDeckBuilderCardList() {
 
   runtime.deckBuilderVirtualStartIndex = startIndex;
   runtime.deckBuilderVirtualGroupCount = grouped.length;
-  host.innerHTML = "";
 
   const spacer = document.createElement("div");
   spacer.className = "deck-builder-virtual-spacer";
@@ -4258,6 +4257,7 @@ function renderDeckBuilderCardList() {
   const layer = document.createElement("div");
   layer.className = "deck-builder-virtual-layer";
   layer.style.transform = `translateY(${startIndex * rowHeight}px)`;
+  layer.style.willChange = "transform";
 
   grouped.slice(startIndex, endIndex).forEach((group) => {
     const card = group.selectedCard;
@@ -4277,8 +4277,8 @@ function renderDeckBuilderCardList() {
     thumb.className = "deck-builder-thumb";
     thumb.src = card.imageUrl || getCardBackImageUrl();
     thumb.alt = card.name;
-    thumb.loading = "eager";
-    thumb.decoding = "sync";
+    thumb.loading = "lazy";
+    thumb.decoding = "async";
 
     const main = document.createElement("div");
     main.className = "deck-builder-card-main";
@@ -4311,8 +4311,11 @@ function renderDeckBuilderCardList() {
     row.appendChild(actions);
     layer.appendChild(row);
   });
-  host.appendChild(spacer);
-  host.appendChild(layer);
+  const frag = document.createDocumentFragment();
+  frag.appendChild(spacer);
+  frag.appendChild(layer);
+  host.innerHTML = "";
+  host.appendChild(frag);
   if (Math.abs((host.scrollTop || 0) - desiredScrollTop) > 1) {
     host.scrollTop = desiredScrollTop;
   }
@@ -4376,8 +4379,8 @@ function renderDeckBuilderDeckList() {
     thumb.className = "deck-builder-deck-card-image";
     thumb.src = card.imageUrl || getCardBackImageUrl();
     thumb.alt = card.name;
-    thumb.loading = "eager";
-    thumb.decoding = "sync";
+    thumb.loading = "lazy";
+    thumb.decoding = "async";
     shell.appendChild(thumb);
 
     row.appendChild(shell);
@@ -5045,8 +5048,9 @@ function setupDeckBuilder() {
       _scrollRafPending = true;
       requestAnimationFrame(() => {
         _scrollRafPending = false;
-        const nextStartIndex = Math.max(0, Math.floor(runtime.deckBuilderCardListScrollTop / 90) - 4);
-        if (nextStartIndex !== runtime.deckBuilderVirtualStartIndex) {
+        const nextStartIndex = Math.max(0, Math.floor(runtime.deckBuilderCardListScrollTop / 90) - 8);
+        // 只在捲動超過 4 行的距離時才重繪，減少重繪頻率
+        if (Math.abs(nextStartIndex - runtime.deckBuilderVirtualStartIndex) >= 4) {
           renderDeckBuilderCardList();
         }
       });

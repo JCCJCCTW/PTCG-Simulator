@@ -2801,7 +2801,7 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 
 .deck-builder-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(120px, 0.5fr));
+  grid-template-columns: minmax(0, 1.3fr) minmax(240px, 1fr) minmax(120px, 0.5fr);
   gap: 8px;
 }
 
@@ -2814,6 +2814,7 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 
 .deck-builder-toolbar input,
 .deck-builder-toolbar select,
+.deck-builder-filter-actions select,
 .deck-builder-deck-header input,
 .deck-builder-saved-row select {
   border: 1px solid rgba(37, 99, 235, 0.22);
@@ -2848,12 +2849,14 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
 }
 
-.deck-builder-toolbar select.filter-disabled {
+.deck-builder-toolbar select.filter-disabled,
+.deck-builder-filter-actions select.filter-disabled {
   opacity: 0.42;
   cursor: not-allowed;
 }
 
 .deck-builder-toolbar select option,
+.deck-builder-filter-actions select option,
 .deck-builder-saved-row select option {
   color: #111;
 }
@@ -2994,6 +2997,12 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   align-items: center;
   gap: 8px;
   position: relative;
+}
+
+.deck-builder-filter-actions select,
+.deck-builder-filter-actions .custom-dropdown {
+  min-width: 120px;
+  max-width: 160px;
 }
 
 .deck-builder-filter-actions button {

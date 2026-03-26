@@ -4275,7 +4275,7 @@ function renderDeckBuilderCardList() {
     thumb.className = "deck-builder-thumb";
     thumb.src = card.imageUrl || getCardBackImageUrl();
     thumb.alt = card.name;
-    thumb.loading = "lazy";
+    thumb.loading = "eager";
     thumb.decoding = "async";
 
     const main = document.createElement("div");
@@ -4377,7 +4377,7 @@ function renderDeckBuilderDeckList() {
     thumb.className = "deck-builder-deck-card-image";
     thumb.src = card.imageUrl || getCardBackImageUrl();
     thumb.alt = card.name;
-    thumb.loading = "lazy";
+    thumb.loading = "eager";
     thumb.decoding = "async";
     shell.appendChild(thumb);
 
@@ -5046,9 +5046,9 @@ function setupDeckBuilder() {
       _scrollRafPending = true;
       requestAnimationFrame(() => {
         _scrollRafPending = false;
-        const nextStartIndex = Math.max(0, Math.floor(runtime.deckBuilderCardListScrollTop / 90) - 8);
-        // 只在捲動超過 4 行的距離時才重繪，減少重繪頻率
-        if (Math.abs(nextStartIndex - runtime.deckBuilderVirtualStartIndex) >= 4) {
+        const nextStartIndex = Math.max(0, Math.floor(runtime.deckBuilderCardListScrollTop / 90) - 10);
+        // 渲染 200 行，只有捲動接近緩衝區邊界時才重繪（距離超過 150 行）
+        if (Math.abs(nextStartIndex - runtime.deckBuilderVirtualStartIndex) >= 150) {
           renderDeckBuilderCardList();
         }
       });

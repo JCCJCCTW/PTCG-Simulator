@@ -111,7 +111,9 @@ const TW_CARD_IMG_BASE = "https://asia.pokemon-card.com/tw/card-img/";
 const US_CARD_BASE = "https://images.pokemontcg.io";
 const PTCG_TW_PROXY_API = "https://r.jina.ai/http://ptcgtw.shop/index_function/api/23_01_load_deck_ptcgtw_api.php";
 const APP_BASE_DIR = typeof __dirname === "string" ? __dirname : ".";
-const DECK_BUILDER_ROOT = `${APP_BASE_DIR}\\deck-builder-data`;
+const DECK_BUILDER_ROOT = typeof require !== "undefined"
+  ? require("path").join(APP_BASE_DIR, "deck-builder-data")
+  : `${APP_BASE_DIR}/deck-builder-data`;
 const DECK_BUILDER_EXTERNAL_ROOT_NAME = "deck-builder-data";
 const PEER_ICE_CONFIG = {
   iceServers: [

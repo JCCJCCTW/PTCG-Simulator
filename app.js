@@ -4231,10 +4231,8 @@ function renderDeckBuilderCardList() {
     return;
   }
   const rowHeight = 90;
-  const overscan = 8;
-  const viewportHeight = Math.max(host.clientHeight || 0, rowHeight * 6);
-  const startIndex = Math.max(0, Math.floor(desiredScrollTop / rowHeight) - overscan);
-  const visibleCount = Math.ceil(viewportHeight / rowHeight) + overscan * 2;
+  const visibleCount = 200;
+  const startIndex = Math.max(0, Math.floor(desiredScrollTop / rowHeight) - 10);
   const endIndex = Math.min(grouped.length, startIndex + visibleCount);
 
   // 虛擬滾動快取：只有在 startIndex 相同且資料筆數未改變時才跳過重繪

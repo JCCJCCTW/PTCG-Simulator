@@ -3531,11 +3531,17 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: flex-end;
 }
 
-.deck-builder-deck-header input,
-.deck-builder-saved-row select {
+.deck-builder-deck-header input {
   flex: 1 1 auto;
+}
+
+.deck-builder-saved-row select,
+.deck-builder-saved-row .custom-dropdown {
+  flex: 0 1 auto;
+  min-width: 240px;
 }
 
 .deck-builder-deck-actions {

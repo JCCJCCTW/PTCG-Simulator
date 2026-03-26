@@ -4777,6 +4777,8 @@ async function openDeckBuilderModal() {
   }
   renderDeckBuilderImportModal();
   renderDeckBuilderState();
+  // 升級所有原生 <select> 為自訂下拉選單
+  upgradeAllSelectsInContainer(modal);
 }
 
 function setupDeckBuilder() {
@@ -10343,6 +10345,144 @@ function hideWithAnimation(el) {
   (pAnim || bAnim).onfinish = onDone;
 }
 
+/* ═══ 自訂下拉選單 (Custom Dropdown) ═══ */
+function upgradeSelectToCustomDropdown(select) {
+  if (!select || select.dataset.upgraded === "true") return;
+  select.dataset.upgraded = "true";
+  select.style.display = "none";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "custom-dropdown";
+  // 繼承原 select 的 flex/size 屬性
+  if (select.style.flex) wrapper.style.flex = select.style.flex;
+  select.parentNode.insertBefore(wrapper, select);
+  wrapper.appendChild(select);
+
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "custom-dropdown-trigger";
+  wrapper.insertBefore(trigger, select);
+
+  const list = document.createElement("div");
+  list.className = "custom-dropdown-list";
+  wrapper.appendChild(list);
+
+  function getLabel() {
+    const opt = select.options[select.selectedIndex];
+    return opt ? opt.textContent : "";
+  }
+
+  function renderTrigger() {
+    trigger.innerHTML = "";
+    const span = document.createElement("span");
+    span.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;";
+    span.textContent = getLabel() || "請選擇";
+    trigger.appendChild(span);
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    trigger.appendChild(arrow);
+    trigger.classList.toggle("filter-disabled", select.disabled);
+  }
+
+  function renderList() {
+    list.innerHTML = "";
+    for (let i = 0; i < select.options.length; i++) {
+      const opt = select.options[i];
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "dd-item";
+      if (opt.value === select.value) item.classList.add("active");
+      item.textContent = opt.textContent;
+      item.dataset.value = opt.value;
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        select.value = opt.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        closeList();
+        renderTrigger();
+      });
+      list.appendChild(item);
+    }
+  }
+
+  function closeList() {
+    list.classList.remove("visible");
+    trigger.classList.remove("open");
+  }
+
+  function toggleList() {
+    if (select.disabled) return;
+    const isOpen = list.classList.contains("visible");
+    // 關閉其他所有 dropdown
+    document.querySelectorAll(".custom-dropdown-list.visible").forEach((el) => {
+      el.classList.remove("visible");
+      const t = el.parentElement?.querySelector(".custom-dropdown-trigger");
+      if (t) t.classList.remove("open");
+    });
+    if (!isOpen) {
+      renderList();
+      list.classList.add("visible");
+      trigger.classList.add("open");
+      // 確保列表不超出視窗
+      requestAnimationFrame(() => {
+        const rect = list.getBoundingClientRect();
+        const vh = window.innerHeight;
+        if (rect.bottom > vh - 8) {
+          list.style.top = "auto";
+          list.style.bottom = "calc(100% + 4px)";
+        } else {
+          list.style.top = "";
+          list.style.bottom = "";
+        }
+      });
+    }
+  }
+
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleList();
+  });
+
+  // 點擊外部關閉
+  document.addEventListener("click", (e) => {
+    if (!wrapper.contains(e.target)) closeList();
+  });
+
+  // 監聽原 select 的程式化 value 改變
+  const origDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value");
+  let currentVal = select.value;
+  const checkValueChange = () => {
+    if (select.value !== currentVal) {
+      currentVal = select.value;
+      renderTrigger();
+    }
+  };
+  // 用 MutationObserver 監聽 options 數量變化
+  const observer = new MutationObserver(() => {
+    renderTrigger();
+  });
+  observer.observe(select, { childList: true, subtree: true, attributes: true });
+  // 定期同步（因為 .value 直接賦值沒有事件）
+  setInterval(checkValueChange, 300);
+
+  // disabled 監控
+  const disabledObserver = new MutationObserver(() => {
+    trigger.classList.toggle("filter-disabled", select.disabled);
+    if (select.disabled) closeList();
+  });
+  disabledObserver.observe(select, { attributes: true, attributeFilter: ["disabled"] });
+
+  renderTrigger();
+  return wrapper;
+}
+
+function upgradeAllSelectsInContainer(container) {
+  if (!container) return;
+  container.querySelectorAll("select:not([data-upgraded])").forEach((sel) => {
+    upgradeSelectToCustomDropdown(sel);
+  });
+}
+
 function initModalAnimations() {
   const CONFIGS = [
     { id: "deck-save-modal",                    panelSel: ".deck-save-modal-panel",              type: "pop"     },
@@ -10426,6 +10566,9 @@ function initializeMainApp() {
   updatePeerUiVisibility();
   renderBoard();
   initModalAnimations();
+  // 升級主畫面的原生 select 為自訂下拉
+  upgradeAllSelectsInContainer(document.getElementById("deck-import-panel"));
+  upgradeAllSelectsInContainer(document.getElementById("mode-gate"));
 }
 
 seedDemoState();

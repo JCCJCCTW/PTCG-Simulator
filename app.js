@@ -5038,13 +5038,19 @@ function setupDeckBuilder() {
     });
   }
   if (cardListHost) {
+    let _scrollRafPending = false;
     cardListHost.addEventListener("scroll", () => {
       runtime.deckBuilderCardListScrollTop = cardListHost.scrollTop || 0;
-      const nextStartIndex = Math.max(0, Math.floor(runtime.deckBuilderCardListScrollTop / 90) - 4);
-      if (nextStartIndex !== runtime.deckBuilderVirtualStartIndex) {
-        renderDeckBuilderCardList();
-      }
-    });
+      if (_scrollRafPending) return;
+      _scrollRafPending = true;
+      requestAnimationFrame(() => {
+        _scrollRafPending = false;
+        const nextStartIndex = Math.max(0, Math.floor(runtime.deckBuilderCardListScrollTop / 90) - 4);
+        if (nextStartIndex !== runtime.deckBuilderVirtualStartIndex) {
+          renderDeckBuilderCardList();
+        }
+      });
+    }, { passive: true });
     cardListHost.addEventListener("pointerdown", () => {
       runtime.deckBuilderKeyboardScope = "catalog";
     });
@@ -10376,7 +10382,9 @@ function upgradeSelectToCustomDropdown(select) {
     trigger.innerHTML = "";
     const span = document.createElement("span");
     span.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;";
-    span.textContent = getLabel() || "請選擇";
+    const labelText = getLabel() || "請選擇";
+    span.textContent = labelText;
+    trigger.title = labelText;
     trigger.appendChild(span);
     const arrow = document.createElement("span");
     arrow.className = "arrow";
@@ -10393,6 +10401,7 @@ function upgradeSelectToCustomDropdown(select) {
       item.className = "dd-item";
       if (opt.value === select.value) item.classList.add("active");
       item.textContent = opt.textContent;
+      item.title = opt.textContent;
       item.dataset.value = opt.value;
       item.addEventListener("click", (e) => {
         e.stopPropagation();

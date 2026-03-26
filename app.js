@@ -4333,8 +4333,7 @@ function renderDeckBuilderDeckList() {
   const validation = getDeckBuilderValidation();
   summaryEl.innerHTML = `
     <div class="deck-builder-summary-status ${validation.valid ? "valid" : "invalid"}">${validation.valid ? "可直接套用" : "規則未完成"}</div>
-    <div class="deck-builder-summary-line">總張數 ${validation.total} / 60</div>
-    <div class="deck-builder-summary-line">寶可夢 ${validation.pokemon}　訓練家 ${validation.trainer}　能量 ${validation.energy}</div>
+    <div class="deck-builder-summary-line">總張數 ${validation.total} / 60　寶可夢 ${validation.pokemon}　訓練家 ${validation.trainer}　能量 ${validation.energy}</div>
   `;
   if (validation.warnings.length) {
     warningEl.classList.remove("hidden");

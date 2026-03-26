@@ -1,10 +1,28 @@
-﻿:root {
-  --table-green: #121617;
+﻿/* ═══ Google Fonts ═══ */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Russo+One&display=swap');
+
+:root {
+  /* ── 設計系統配色 (ui-ux-pro-max: Gaming Dark) ── */
+  --color-primary: #7C3AED;
+  --color-primary-light: #A78BFA;
+  --color-primary-dim: rgba(124, 58, 237, 0.25);
+  --color-accent: #F43F5E;
+  --color-accent-light: #FB7185;
+  --color-surface: #0F0F23;
+  --color-surface-light: #1A1A36;
+  --color-surface-card: rgba(26, 26, 54, 0.85);
+  --color-glass: rgba(15, 15, 35, 0.72);
+  --color-glass-border: rgba(124, 58, 237, 0.30);
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+
+  /* ── 原有變數（映射到新配色） ── */
+  --table-green: #0F0F23;
   --line: #ffffff;
-  --line-soft: rgba(255, 255, 255, 0.5);
-  --text: #ffffff;
+  --line-soft: rgba(167, 139, 250, 0.45);
+  --text: #E2E8F0;
   --card-front: #f8f8f8;
-  --card-back: #1a1f22;
+  --card-back: #1A1A36;
   --card-text: #d7dde3;
   --core-zone-w: 96px;
   --core-zone-h: 126px;
@@ -67,7 +85,7 @@ body {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+  font-family: "Chakra Petch", "Segoe UI", "Noto Sans TC", sans-serif;
   background:
     linear-gradient(rgba(6, 10, 8, var(--app-bg-overlay-alpha)), rgba(6, 10, 8, var(--app-bg-overlay-alpha))),
     var(--app-wallpaper) center center / cover no-repeat fixed;
@@ -141,14 +159,17 @@ body {
   bottom: 12px;
   left: 12px;
   z-index: 90;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 8px;
-  background: rgba(10, 12, 14, 0.95);
-  color: #fff;
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10px;
+  background: var(--color-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text);
   font-size: 12px;
   padding: 6px 10px;
   display: grid;
   gap: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .resource-title {
@@ -163,13 +184,25 @@ body {
 
 .import-toggle-btn,
 .ready-toggle-btn {
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 8px;
-  padding: 8px 12px;
-  background: rgba(18, 22, 26, 0.92);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(15, 15, 35, 0.88));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.25s ease;
+  text-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
+}
+
+.import-toggle-btn:hover,
+.ready-toggle-btn:hover:not(:disabled) {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 18px rgba(124, 58, 237, 0.45), inset 0 0 12px rgba(124, 58, 237, 0.1);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(15, 15, 35, 0.92));
+  transform: translateY(-1px);
 }
 
 .ready-toggle-btn.ready-on {
@@ -197,10 +230,13 @@ body {
 .image-toolbar {
   width: min(1280px, 96vw);
   margin: 14px auto 0;
-  padding: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.55);
-  border-radius: 10px;
-  background: rgba(10, 12, 14, 0.95);
+  padding: 12px;
+  border: 1px solid var(--color-glass-border);
+  border-radius: 14px;
+  background: var(--color-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(124, 58, 237, 0.08);
   display: grid;
   gap: 8px;
 }
@@ -219,13 +255,20 @@ body {
   position: absolute;
   top: 8px;
   right: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 8px;
+  background: rgba(124, 58, 237, 0.12);
   color: #fff;
   width: 28px;
   height: 28px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deck-import-close-btn:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.5);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
 }
 
 .image-toolbar textarea {
@@ -235,10 +278,17 @@ body {
   resize: none;
   padding: 8px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(124, 58, 237, 0.20);
+  background: rgba(15, 15, 35, 0.5);
   color: #fff;
   font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.image-toolbar textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.2);
+  outline: none;
 }
 
 .import-grid {
@@ -426,7 +476,8 @@ body {
 .image-progress-bar {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #5eead4, #60a5fa);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
   transition: width 0.2s ease;
 }
 
@@ -437,9 +488,10 @@ body {
   aspect-ratio: 16 / 9;
   margin: 10px auto;
   padding: 14px;
-  border: 3px solid var(--line);
-  border-radius: 12px;
-  background: rgba(8, 12, 10, var(--app-board-alpha));
+  border: 1px solid rgba(124, 58, 237, 0.20);
+  border-radius: 14px;
+  background: rgba(15, 15, 35, var(--app-board-alpha));
+  box-shadow: inset 0 0 60px rgba(124, 58, 237, 0.04);
   display: grid;
   gap: 12px;
   position: relative;
@@ -1242,22 +1294,30 @@ body.dragging-active::after {
   min-width: 220px;
   gap: 4px;
   padding: 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(28, 35, 28, 0.95);
+  border-radius: 12px;
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(124, 58, 237, 0.10);
 }
 
 .context-menu button {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 8px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text);
+  background: rgba(124, 58, 237, 0.06);
   text-align: left;
   cursor: pointer;
+  transition: all 0.18s ease;
 }
 
-.context-menu button:hover { background: rgba(255, 255, 255, 0.18); }
+.context-menu button:hover {
+  background: rgba(124, 58, 237, 0.20);
+  border-color: var(--color-glass-border);
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.2);
+}
 
 #status-context-menu {
   min-width: 220px;
@@ -1311,9 +1371,12 @@ body.dragging-active::after {
 .overlay-panel {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  background: rgba(20, 30, 20, 0.95);
+  border-radius: 14px;
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(124, 58, 237, 0.10);
   display: grid;
   grid-template-rows: auto auto 1fr;
   overflow: hidden;
@@ -1324,19 +1387,26 @@ body.dragging-active::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.2);
 }
 
-.overlay-header h3 { margin: 0; font-size: 16px; }
+.overlay-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
 
 .overlay-close {
   width: 30px;
   height: 30px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid var(--color-glass-border);
+  background: rgba(124, 58, 237, 0.12);
   color: #fff;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.overlay-close:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.5);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
 }
 
 .overlay-hint {
@@ -2016,7 +2086,9 @@ body.dragging-active .card-zoom {
   z-index: 140;
   display: grid;
   place-items: center;
-  background: rgba(8, 14, 9, 0.65);
+  background: rgba(5, 5, 18, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .mode-gate.hidden {
@@ -2025,12 +2097,15 @@ body.dragging-active .card-zoom {
 
 .mode-gate-panel {
   width: min(460px, calc(100vw - 28px));
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
-  background: rgba(10, 12, 14, 0.95);
-  padding: 18px 18px 16px;
+  border: 1px solid var(--color-glass-border);
+  border-radius: 18px;
+  background: var(--color-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 0 40px rgba(124, 58, 237, 0.12);
+  padding: 24px 22px 20px;
   display: grid;
-  gap: 14px;
+  gap: 16px;
   justify-items: center;
   position: relative;
   transform-origin: center center;
@@ -2041,18 +2116,26 @@ body.dragging-active .card-zoom {
   position: absolute;
   top: 12px;
   left: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10px;
+  background: rgba(124, 58, 237, 0.12);
   color: #fff;
-  padding: 6px 10px;
+  padding: 6px 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-gate-fetch-btn:hover {
+  background: rgba(124, 58, 237, 0.25);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
 }
 
 .mode-gate-panel h2 {
   margin: 0;
   font-size: 22px;
+  font-family: "Russo One", "Chakra Petch", sans-serif;
+  text-shadow: 0 0 16px rgba(124, 58, 237, 0.4);
 }
 
 .mode-peer-meta {
@@ -2071,12 +2154,18 @@ body.dragging-active .card-zoom {
 
 .conn-row button {
   margin-left: auto;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 8px;
+  background: rgba(124, 58, 237, 0.12);
   color: #fff;
-  padding: 3px 7px;
+  padding: 3px 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.conn-row button:hover {
+  background: rgba(124, 58, 237, 0.25);
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.25);
 }
 
 .conn-light {
@@ -2104,14 +2193,23 @@ body.dragging-active .card-zoom {
 
 .mode-gate-actions button {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  border-radius: 9px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(15, 15, 35, 0.85));
   color: #fff;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.25s ease;
+  text-shadow: 0 0 6px rgba(124, 58, 237, 0.2);
+}
+
+.mode-gate-actions button:hover:not(:disabled) {
+  border-color: var(--color-primary-light);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(15, 15, 35, 0.90));
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4), inset 0 0 16px rgba(124, 58, 237, 0.08);
+  transform: translateY(-2px);
 }
 
 .mode-gate-actions button:disabled {
@@ -2120,7 +2218,7 @@ body.dragging-active .card-zoom {
 }
 
 body.deck-builder-window {
-  background: #0a0f12;
+  background: var(--color-surface);
   overflow: hidden;
 }
 
@@ -2214,38 +2312,56 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 .recent-deck-shortcuts .items button {
   width: 100%;
   text-align: left;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 10px;
+  background: rgba(124, 58, 237, 0.06);
   color: #fff;
   padding: 7px 10px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recent-deck-shortcuts .items button:hover {
+  background: rgba(124, 58, 237, 0.18);
+  border-color: var(--color-glass-border);
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.15);
 }
 
 #deck-save-modal input,
 #deck-rename-modal input,
 #settings-modal input {
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(124, 58, 237, 0.25);
   border-radius: 8px;
   padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(15, 15, 35, 0.5);
   color: #fff;
+  transition: border-color 0.2s ease;
+}
+
+#deck-save-modal input:focus,
+#deck-rename-modal input:focus,
+#settings-modal input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.25);
+  outline: none;
 }
 
 #deck-save-modal button#deck-save-confirm-btn,
 #deck-rename-modal button#deck-rename-confirm-btn {
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(124, 58, 237, 0.10));
   color: #fff;
   padding: 8px;
   cursor: pointer;
-  transition: transform 0.08s ease, filter 0.16s ease, box-shadow 0.16s ease;
+  transition: all 0.2s ease;
 }
 
 #deck-save-modal button#deck-save-confirm-btn:hover,
 #deck-rename-modal button#deck-rename-confirm-btn:hover {
-  filter: brightness(1.08);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.40), rgba(124, 58, 237, 0.18));
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.35);
+  border-color: var(--color-primary-light);
 }
 
 #deck-save-modal button#deck-save-confirm-btn:active,
@@ -2269,7 +2385,9 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   z-index: 130;
   display: grid;
   place-items: center;
-  background: rgba(7, 16, 9, 0.62);
+  background: rgba(5, 5, 18, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 #deck-builder-modal {
@@ -2283,7 +2401,9 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(3, 8, 12, 0.88);
+  background: rgba(5, 5, 18, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   cursor: zoom-out;
 }
 
@@ -2292,9 +2412,12 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 #deck-builder-image-preview-modal .deck-builder-image-preview-panel,
 #settings-modal .deck-save-modal-panel,
 #chat-modal .deck-save-modal-panel {
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  background: rgba(20, 30, 20, 0.95);
+  border-radius: 14px;
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(124, 58, 237, 0.12);
   overflow: hidden;
 }
 
@@ -2474,12 +2597,19 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 }
 
 #reset-confirm-modal button {
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(15, 15, 35, 0.85));
   color: #fff;
-  padding: 7px 10px;
+  padding: 7px 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#reset-confirm-modal button:hover {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(15, 15, 35, 0.90));
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+  border-color: var(--color-primary-light);
 }
 
 .mode-gate.closing .mode-gate-panel {
@@ -2492,9 +2622,12 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   right: 12px;
   bottom: 12px;
   z-index: 96;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 10px;
-  background: rgba(10, 12, 14, 0.95);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12px;
+  background: var(--color-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   padding: 8px 10px;
   font-size: 12px;
   display: grid;
@@ -2512,10 +2645,11 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 130;
+  font-family: "Russo One", "Chakra Petch", sans-serif;
   font-size: clamp(40px, 8vw, 92px);
   font-weight: 900;
   color: #fff;
-  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 30px rgba(124, 58, 237, 0.6), 0 4px 14px rgba(0, 0, 0, 0.6);
   pointer-events: none;
   opacity: 0;
 }
@@ -2547,13 +2681,15 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 .toast {
   min-width: 220px;
   max-width: 360px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  background: rgba(10, 12, 14, 0.95);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10px;
+  background: var(--color-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #fff;
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 13px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(124, 58, 237, 0.1);
   opacity: 0;
   transform: translateY(6px);
   animation: toast-in 0.18s ease forwards;
@@ -2623,9 +2759,12 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   height: min(940px, calc(100vh - 16px));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  border-radius: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.42);
-  background: rgba(10, 12, 14, 0.97);
+  border-radius: 16px;
+  border: 1px solid var(--color-glass-border);
+  background: rgba(15, 15, 35, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 0 32px rgba(124, 58, 237, 0.10);
   overflow: hidden;
   place-self: center;
 }

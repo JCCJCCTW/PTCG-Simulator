@@ -56,6 +56,7 @@
     },
     "mac": {
       "icon": "assets/app-icon.icns",
+      "identity": null,
       "target": [
         {
           "target": "zip",

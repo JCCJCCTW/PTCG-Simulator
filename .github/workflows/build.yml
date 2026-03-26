@@ -38,7 +38,21 @@ jobs:
         run: npm install
 
       - name: Build macOS (x64 + arm64)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npx electron-builder --mac --publish never
+
+      - name: Remove quarantine from zip contents
+        run: |
+          for zipfile in dist/*.zip; do
+            [ -f "$zipfile" ] || continue
+            tmpdir=$(mktemp -d)
+            unzip -q "$zipfile" -d "$tmpdir"
+            xattr -cr "$tmpdir" 2>/dev/null || true
+            rm "$zipfile"
+            cd "$tmpdir" && zip -r -q -y "$OLDPWD/$zipfile" . && cd "$OLDPWD"
+            rm -rf "$tmpdir"
+          done
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
@@ -114,9 +128,16 @@ jobs:
             - 程式預設使用**線上圖片**，不需要額外下載即可正常使用
             - 如果想要**離線使用**，下載 `PTCG-Card-Images.zip` 並解壓到程式同目錄的 `images` 資料夾
 
-            ### ⚠️ 注意事項
-            - macOS 首次開啟需要：**右鍵 → 打開 → 確認打開**
-            - Windows 可能跳出 SmartScreen 警告，點擊「仍要執行」即可
+            ### ⚠️ macOS 注意事項
+            如果開啟時顯示「檔案損毀」，請在終端機執行：
+            ```
+            xattr -cr "/Applications/PTCG Simulator.app"
+            ```
+            或放在其他位置的話，改成該 .app 的實際路徑。
+            然後 **右鍵 → 打開 → 確認打開** 即可。
+
+            ### ⚠️ Windows 注意事項
+            - 可能跳出 SmartScreen 警告，點擊「仍要執行」即可
           files: artifacts/**/*
           draft: false
           prerelease: false

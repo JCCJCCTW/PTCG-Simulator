@@ -42,19 +42,36 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npx electron-builder --mac --publish never
 
-      - name: Ad-hoc sign and repackage
+      - name: Ad-hoc sign, add launcher, and repackage
         run: |
           for zipfile in dist/*.zip; do
             [ -f "$zipfile" ] || continue
             tmpdir=$(mktemp -d)
             unzip -q "$zipfile" -d "$tmpdir"
             app=$(find "$tmpdir" -name "*.app" -maxdepth 2 -type d | head -1)
+            appname=$(basename "$app" 2>/dev/null || echo "PTCG Simulator.app")
             if [ -n "$app" ]; then
-              # 移除 quarantine 標記
               xattr -cr "$app" 2>/dev/null || true
-              # Ad-hoc 簽名（免費，無需 Apple 開發者帳號）
               codesign --force --deep -s - "$app" 2>/dev/null || true
             fi
+            # 建立一鍵啟動腳本（雙擊即可，不需手動開終端機）
+            cat > "$tmpdir/首次啟動請雙擊我.command" << 'SCRIPT'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          APP="$(find "$DIR" -name "*.app" -maxdepth 1 -type d | head -1)"
+          if [ -z "$APP" ]; then
+            echo "找不到 .app 檔案，請確認 .app 和此腳本在同一個資料夾"
+            read -p "按 Enter 關閉..."
+            exit 1
+          fi
+          echo "正在解除 macOS 安全限制..."
+          xattr -cr "$APP" 2>/dev/null
+          echo "正在啟動 $(basename "$APP")..."
+          open "$APP"
+          echo "完成！之後可以直接雙擊 .app 開啟，不需要再執行此腳本。"
+          sleep 2
+          SCRIPT
+            chmod +x "$tmpdir/首次啟動請雙擊我.command"
             rm "$zipfile"
             cd "$tmpdir" && zip -r -q -y "$OLDPWD/$zipfile" . && cd "$OLDPWD"
             rm -rf "$tmpdir"
@@ -135,11 +152,8 @@ jobs:
             - 如果想要**離線使用**，下載 `PTCG-Card-Images.zip` 並解壓到程式同目錄的 `images` 資料夾
 
             ### ⚠️ macOS 注意事項
-            首次開啟請 **右鍵 → 打開 → 確認打開**（僅需一次）。
-            若仍顯示「檔案損毀」，在終端機執行：
-            ```
-            xattr -cr "/path/to/PTCG Simulator.app"
-            ```
+            解壓後**首次啟動**請雙擊 `首次啟動請雙擊我.command`，它會自動解除安全限制並啟動程式。
+            之後就可以直接雙擊 `.app` 開啟，不需要再執行腳本。
 
             ### ⚠️ Windows 注意事項
             - 可能跳出 SmartScreen 警告，點擊「仍要執行」即可

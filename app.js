@@ -4638,7 +4638,7 @@ function closeDeckBuilderModal() {
   closeDeckBuilderImagePreview();
   clearDeckBuilderRenderedMedia();
 
-  // 清除所有篩選、搜尋、快取
+  // 清除所有篩選、搜尋、快取、牌組
   state.deckBuilder.search = "";
   state.deckBuilder.seriesFilter = "";
   state.deckBuilder.typeFilter = "";
@@ -4648,12 +4648,18 @@ function closeDeckBuilderModal() {
   state.deckBuilder.retreatCostFilter = [];
   state.deckBuilder.selectedCardKey = "";
   state.deckBuilder.selectedDeckEntryKey = "";
+  state.deckBuilder.deckEntries = [];
+  state.deckBuilder.currentDeckId = "";
   runtime.deckBuilderSelectedDeckDisplayKey = "";
   runtime.deckBuilderVirtualStartIndex = -1;
   runtime.deckBuilderVirtualGroupCount = -1;
   runtime.deckBuilderKeyboardScope = "catalog";
   const searchInput = document.getElementById("deck-builder-search-input");
   if (searchInput) searchInput.value = "";
+  const nameInput = document.getElementById("deck-builder-name-input");
+  if (nameInput) nameInput.value = "";
+  const savedSelect = document.getElementById("deck-builder-saved-select");
+  if (savedSelect) savedSelect.value = "";
 }
 
 function closeDeckBuilderImagePreview() {

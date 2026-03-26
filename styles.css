@@ -3540,7 +3540,7 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
 
 .deck-builder-saved-row select,
 .deck-builder-saved-row .custom-dropdown {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 240px;
 }
 

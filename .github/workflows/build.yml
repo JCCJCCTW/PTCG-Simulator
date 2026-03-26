@@ -42,13 +42,19 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npx electron-builder --mac --publish never
 
-      - name: Remove quarantine from zip contents
+      - name: Ad-hoc sign and repackage
         run: |
           for zipfile in dist/*.zip; do
             [ -f "$zipfile" ] || continue
             tmpdir=$(mktemp -d)
             unzip -q "$zipfile" -d "$tmpdir"
-            xattr -cr "$tmpdir" 2>/dev/null || true
+            app=$(find "$tmpdir" -name "*.app" -maxdepth 2 -type d | head -1)
+            if [ -n "$app" ]; then
+              # 移除 quarantine 標記
+              xattr -cr "$app" 2>/dev/null || true
+              # Ad-hoc 簽名（免費，無需 Apple 開發者帳號）
+              codesign --force --deep -s - "$app" 2>/dev/null || true
+            fi
             rm "$zipfile"
             cd "$tmpdir" && zip -r -q -y "$OLDPWD/$zipfile" . && cd "$OLDPWD"
             rm -rf "$tmpdir"
@@ -129,12 +135,11 @@ jobs:
             - 如果想要**離線使用**，下載 `PTCG-Card-Images.zip` 並解壓到程式同目錄的 `images` 資料夾
 
             ### ⚠️ macOS 注意事項
-            如果開啟時顯示「檔案損毀」，請在終端機執行：
+            首次開啟請 **右鍵 → 打開 → 確認打開**（僅需一次）。
+            若仍顯示「檔案損毀」，在終端機執行：
             ```
-            xattr -cr "/Applications/PTCG Simulator.app"
+            xattr -cr "/path/to/PTCG Simulator.app"
             ```
-            或放在其他位置的話，改成該 .app 的實際路徑。
-            然後 **右鍵 → 打開 → 確認打開** 即可。
 
             ### ⚠️ Windows 注意事項
             - 可能跳出 SmartScreen 警告，點擊「仍要執行」即可

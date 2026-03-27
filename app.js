@@ -7651,6 +7651,18 @@ function setupMatchModeGate() {
       }
     });
   }
+
+  const gateSettingsBtn = document.getElementById("mode-gate-settings-btn");
+  if (gateSettingsBtn) {
+    gateSettingsBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const modal = document.getElementById("settings-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+      }
+    });
+  }
 }
 
 function setupSettingsModal() {
@@ -7806,6 +7818,53 @@ function setupSettingsModal() {
     }
   };
 
+  function showResolutionConfirm(newValue, previousValue) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement("div");
+      overlay.className = "resolution-confirm-overlay";
+      const panel = document.createElement("div");
+      panel.className = "resolution-confirm-panel";
+      const msg = document.createElement("p");
+      msg.textContent = "是否保留此解析度設定？";
+      const countdown = document.createElement("div");
+      countdown.className = "countdown";
+      let remaining = 5;
+      countdown.textContent = `${remaining} 秒後自動還原`;
+      const actions = document.createElement("div");
+      actions.className = "resolution-confirm-actions";
+      const confirmBtn = document.createElement("button");
+      confirmBtn.className = "confirm-btn";
+      confirmBtn.textContent = "確認保留";
+      const revertBtn = document.createElement("button");
+      revertBtn.textContent = "還原";
+      actions.appendChild(confirmBtn);
+      actions.appendChild(revertBtn);
+      panel.appendChild(msg);
+      panel.appendChild(countdown);
+      panel.appendChild(actions);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      let timer = null;
+      const cleanup = (confirmed) => {
+        if (timer) clearInterval(timer);
+        overlay.remove();
+        resolve(confirmed);
+      };
+
+      timer = setInterval(() => {
+        remaining -= 1;
+        countdown.textContent = `${remaining} 秒後自動還原`;
+        if (remaining <= 0) {
+          cleanup(false);
+        }
+      }, 1000);
+
+      confirmBtn.addEventListener("click", () => cleanup(true));
+      revertBtn.addEventListener("click", () => cleanup(false));
+    });
+  }
+
   if (resolutionApplyBtn && resolutionSelect) {
     resolutionApplyBtn.addEventListener("click", async () => {
       const value = resolutionSelect.value;
@@ -7813,6 +7872,15 @@ function setupSettingsModal() {
         showToast("此環境不支援調整解析度", "warn", 1800);
         return;
       }
+
+      // 記住當前解析度以便還原
+      let previousValue;
+      try { previousValue = localStorage.getItem(RESOLUTION_STORAGE_KEY) || "1600x960"; } catch { previousValue = "1600x960"; }
+      if (value === previousValue) {
+        showToast("解析度未變更", "info", 1200);
+        return;
+      }
+
       let payload;
       if (value === "fullscreen") {
         payload = { fullscreen: true };
@@ -7820,12 +7888,30 @@ function setupSettingsModal() {
         const parts = value.split("x");
         payload = { width: Number(parts[0]) || 1600, height: Number(parts[1]) || 960 };
       }
+
       try {
         const result = await runtime.ipcRenderer.invoke("set-resolution", payload);
         if (result && result.ok) {
-          try { localStorage.setItem(RESOLUTION_STORAGE_KEY, value); } catch {}
-          showToast("已套用解析度設定", "success", 1600);
-          await syncResolutionUi();
+          // 顯示 5 秒確認視窗
+          const confirmed = await showResolutionConfirm(value, previousValue);
+          if (confirmed) {
+            try { localStorage.setItem(RESOLUTION_STORAGE_KEY, value); } catch {}
+            showToast("已套用解析度設定", "success", 1600);
+            await syncResolutionUi();
+          } else {
+            // 還原到之前的解析度
+            let revertPayload;
+            if (previousValue === "fullscreen") {
+              revertPayload = { fullscreen: true };
+            } else {
+              const parts = previousValue.split("x");
+              revertPayload = { width: Number(parts[0]) || 1600, height: Number(parts[1]) || 960 };
+            }
+            await runtime.ipcRenderer.invoke("set-resolution", revertPayload);
+            resolutionSelect.value = previousValue;
+            showToast("已還原解析度", "info", 1600);
+            await syncResolutionUi();
+          }
         }
       } catch (err) {
         showToast("解析度設定失敗", "error", 2000);

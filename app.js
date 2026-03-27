@@ -8897,22 +8897,39 @@ function moveToStadium(incomingCards) {
 
 function moveToUniqueMainZone(targetZoneId, incomingCards) {
   const attach = UNIQUE_MAIN_TO_ATTACH[targetZoneId];
-  const existingMain = getCardsInZone(targetZoneId)[0] || null;
-  const existingDamage = getZoneDamage(targetZoneId);
-  const incomingIds = new Set(incomingCards.map((c) => c.id));
-  moveExistingMainToAttach(targetZoneId, incomingIds);
 
   if (incomingCards.length === 0) {
     return;
   }
 
   const incomingFirst = incomingCards[0];
-  const sourceIsBattleOrBench = isBattleOrBenchMainZone(incomingFirst.zoneId);
+  const sourceZone = incomingFirst.zoneId;
+  const sourceIsBattleOrBench = isBattleOrBenchMainZone(sourceZone);
+  const existingMainCards = getCardsInZone(targetZoneId).filter((c) => c.id !== incomingFirst.id);
+  const targetHasCards = existingMainCards.length > 0;
+
+  // 來源是備戰/戰鬥主區且目標已有卡片 → 整組交換（主區+附加區）
+  if (sourceIsBattleOrBench && targetHasCards && sourceZone !== targetZoneId) {
+    const sourceAttach = getAttachZoneForMainZone(sourceZone);
+    const targetAttach = getAttachZoneForMainZone(targetZoneId);
+    swapZoneDamage(sourceZone, targetZoneId);
+    swapZoneCards(sourceZone, targetZoneId);
+    if (sourceAttach && targetAttach) {
+      swapZoneCards(sourceAttach, targetAttach);
+    }
+    return;
+  }
+
+  // 非交換情況：把目標區現有卡片移到附加區
+  const existingDamage = getZoneDamage(targetZoneId);
+  const incomingIds = new Set(incomingCards.map((c) => c.id));
+  moveExistingMainToAttach(targetZoneId, incomingIds);
+
   if (sourceIsBattleOrBench) {
-    transferZoneDamage(incomingFirst.zoneId, targetZoneId);
-  } else if (existingMain) {
+    transferZoneDamage(sourceZone, targetZoneId);
+  } else if (targetHasCards) {
     setZoneDamage(targetZoneId, existingDamage);
-  } else if (!existingMain) {
+  } else {
     clearZoneDamage(targetZoneId);
   }
 

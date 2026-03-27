@@ -153,8 +153,9 @@ function chooseWindowSize() {
 function computeZoomFactor(contentWidth, contentHeight) {
   const widthRatio = contentWidth / BASE_VIEWPORT.width;
   const heightRatio = contentHeight / BASE_VIEWPORT.height;
-  const zoomFactor = Math.min(widthRatio, heightRatio, 1);
-  return Math.max(0.6, Number(zoomFactor.toFixed(3)));
+  // 取寬高中較小的比例，確保整個棋盤都能顯示在畫面中
+  const zoomFactor = Math.min(widthRatio, heightRatio);
+  return Math.max(0.5, Number(zoomFactor.toFixed(3)));
 }
 
 function createWindow() {
@@ -181,6 +182,14 @@ function createWindow() {
   win.webContents.on("did-finish-load", () => {
     const [contentWidth, contentHeight] = win.getContentSize();
     win.webContents.setZoomFactor(computeZoomFactor(contentWidth, contentHeight));
+  });
+
+  // 視窗大小改變時自動重新計算縮放
+  win.on("resize", () => {
+    if (win && !win.isDestroyed()) {
+      const [cw, ch] = win.getContentSize();
+      win.webContents.setZoomFactor(computeZoomFactor(cw, ch));
+    }
   });
 
   win.webContents.on("render-process-gone", (_event, details) => {

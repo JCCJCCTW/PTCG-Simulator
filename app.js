@@ -376,6 +376,7 @@ if (runtime.isElectron && typeof window.require === "function") {
 // PWA / 瀏覽器模式標記
 if (!runtime.isElectron) {
   document.body.classList.add("pwa-mode");
+
 }
 
 if (runtime.ipcRenderer) {

@@ -373,6 +373,11 @@ if (runtime.isElectron && typeof window.require === "function") {
   }
 }
 
+// PWA / 瀏覽器模式標記
+if (!runtime.isElectron) {
+  document.body.classList.add("pwa-mode");
+}
+
 if (runtime.ipcRenderer) {
   runtime.ipcRenderer.on("cache-image-urls-progress", (_event, payload) => {
     const taskId = String(payload && payload.taskId ? payload.taskId : "");
@@ -2996,14 +3001,20 @@ async function ensureDeckBuilderCatalogLoaded() {
     if (statusEl) {
       statusEl.textContent = "讀取 cards.json 中";
     }
-    if (!getDeckBuilderRootReady()) {
-      throw new Error("目前環境不支援本機卡片資料讀取。");
+    let rawText;
+    if (getDeckBuilderRootReady()) {
+      // Electron 環境：用 Node.js fs 讀取
+      const cardsJsonPath = resolveDeckBuilderDataFilePath("cards.json");
+      if (!cardsJsonPath) {
+        throw new Error("找不到 deck-builder-data\\cards.json");
+      }
+      rawText = await runtime.nodeFs.promises.readFile(cardsJsonPath, "utf8");
+    } else {
+      // 瀏覽器/PWA 環境：用 fetch 讀取
+      const resp = await fetch("./deck-builder-data/cards.json");
+      if (!resp.ok) throw new Error(`cards.json 載入失敗 (${resp.status})`);
+      rawText = await resp.text();
     }
-    const cardsJsonPath = resolveDeckBuilderDataFilePath("cards.json");
-    if (!cardsJsonPath) {
-      throw new Error("找不到 deck-builder-data\\cards.json");
-    }
-    const rawText = await runtime.nodeFs.promises.readFile(cardsJsonPath, "utf8");
     const payload = JSON.parse(rawText);
     const sourceList = Array.isArray(payload) ? payload : (Array.isArray(payload.cards) ? payload.cards : []);
     const normalized = sourceList

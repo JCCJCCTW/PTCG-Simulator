@@ -3861,6 +3861,30 @@ body.dragging-active .board::after {
 }
 
 /* ═══════════════════════════════════════════════
+   PWA / 瀏覽器模式隱藏 Electron 專用功能
+   ═══════════════════════════════════════════════ */
+
+body.pwa-mode #deck-image-root-display,
+body.pwa-mode #deck-image-root-browse-btn,
+body.pwa-mode #deck-image-root-clear-btn,
+body.pwa-mode #resolution-select,
+body.pwa-mode #resolution-apply-btn,
+body.pwa-mode #resolution-hint {
+  display: none !important;
+}
+
+/* 隱藏解析度和卡片圖片資料夾的 settings-section（完整區塊） */
+body.pwa-mode .settings-section:has(#resolution-select),
+body.pwa-mode .settings-section:has(#deck-image-root-display) {
+  display: none !important;
+}
+
+/* PWA 安全區域 */
+body.pwa-mode {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ═══════════════════════════════════════════════
    視窗開啟動畫
    由 JavaScript Web Animations API (element.animate)
    在 app.js initModalAnimations() 中直接驅動，

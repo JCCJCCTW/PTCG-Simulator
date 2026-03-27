@@ -7780,8 +7780,66 @@ function setupSettingsModal() {
     strengthText.textContent = `${strength}%`;
   });
 
+  // === 解析度設定 ===
+  const resolutionSelect = document.getElementById("resolution-select");
+  const resolutionApplyBtn = document.getElementById("resolution-apply-btn");
+  const resolutionHint = document.getElementById("resolution-hint");
+
+  const RESOLUTION_STORAGE_KEY = "ptcg.resolution";
+
+  const syncResolutionUi = async () => {
+    if (!resolutionSelect || !resolutionHint) return;
+    try {
+      const saved = localStorage.getItem(RESOLUTION_STORAGE_KEY) || "1600x960";
+      resolutionSelect.value = saved;
+      if (!resolutionSelect.value) resolutionSelect.value = "1600x960";
+    } catch {}
+    if (runtime.ipcRenderer) {
+      try {
+        const info = await runtime.ipcRenderer.invoke("get-resolution");
+        if (info.fullscreen) {
+          resolutionHint.textContent = `目前：全螢幕（${info.width} × ${info.height}）`;
+        } else {
+          resolutionHint.textContent = `目前：${info.width} × ${info.height}`;
+        }
+      } catch {}
+    }
+  };
+
+  if (resolutionApplyBtn && resolutionSelect) {
+    resolutionApplyBtn.addEventListener("click", async () => {
+      const value = resolutionSelect.value;
+      if (!runtime.ipcRenderer) {
+        showToast("此環境不支援調整解析度", "warn", 1800);
+        return;
+      }
+      let payload;
+      if (value === "fullscreen") {
+        payload = { fullscreen: true };
+      } else {
+        const parts = value.split("x");
+        payload = { width: Number(parts[0]) || 1600, height: Number(parts[1]) || 960 };
+      }
+      try {
+        const result = await runtime.ipcRenderer.invoke("set-resolution", payload);
+        if (result && result.ok) {
+          try { localStorage.setItem(RESOLUTION_STORAGE_KEY, value); } catch {}
+          showToast("已套用解析度設定", "success", 1600);
+          await syncResolutionUi();
+        }
+      } catch (err) {
+        showToast("解析度設定失敗", "error", 2000);
+      }
+    });
+  }
+
+  // 開啟設定時同步解析度 UI
+  const origOpenHandler = openBtn.onclick;
+  openBtn.addEventListener("click", () => { syncResolutionUi(); });
+
   syncPreview();
   syncStrength();
+  syncResolutionUi();
 }
 
 function setupImageRootSetting() {
@@ -10559,8 +10617,25 @@ function initModalAnimations() {
   });
 }
 
+function loadResolutionSetting() {
+  if (!runtime.ipcRenderer) return;
+  try {
+    const saved = localStorage.getItem("ptcg.resolution");
+    if (!saved || saved === "1600x960") return; // 預設值不需要調整
+    let payload;
+    if (saved === "fullscreen") {
+      payload = { fullscreen: true };
+    } else {
+      const parts = saved.split("x");
+      payload = { width: Number(parts[0]) || 1600, height: Number(parts[1]) || 960 };
+    }
+    runtime.ipcRenderer.invoke("set-resolution", payload).catch(() => {});
+  } catch {}
+}
+
 function initializeMainApp() {
   loadBackgroundImageSetting();
+  loadResolutionSetting();
   setupDropzones();
   setupDeckMenu();
   setupStatusMenu();

@@ -341,6 +341,48 @@ app.whenReady().then(() => {
     }
     deckBuilderWin.setTitle(String(title || "PTCG 牌組編輯器"));
   });
+  ipcMain.handle("set-resolution", async (_event, payload) => {
+    if (!win || win.isDestroyed()) return { ok: false };
+    const { width, height, fullscreen } = payload || {};
+    if (fullscreen) {
+      win.setResizable(true);
+      win.setMaximizable(true);
+      win.setFullScreenable(true);
+      win.setFullScreen(true);
+      // 等全螢幕完成後更新 zoom
+      setTimeout(() => {
+        if (win && !win.isDestroyed()) {
+          const [cw, ch] = win.getContentSize();
+          win.webContents.setZoomFactor(computeZoomFactor(cw, ch));
+        }
+      }, 500);
+      return { ok: true, width: 0, height: 0, fullscreen: true };
+    }
+    // 退出全螢幕
+    if (win.isFullScreen()) {
+      win.setFullScreen(false);
+      await new Promise(r => setTimeout(r, 500));
+    }
+    const w = Number(width) || 1600;
+    const h = Number(height) || 960;
+    win.setResizable(true);
+    win.setSize(w, h, true);
+    win.center();
+    win.setResizable(false);
+    win.setMaximizable(false);
+    win.setFullScreenable(false);
+    const [cw, ch] = win.getContentSize();
+    win.webContents.setZoomFactor(computeZoomFactor(cw, ch));
+    return { ok: true, width: w, height: h, fullscreen: false };
+  });
+
+  ipcMain.handle("get-resolution", async () => {
+    if (!win || win.isDestroyed()) return { width: 1600, height: 960, fullscreen: false };
+    const isFs = win.isFullScreen();
+    const [w, h] = win.getSize();
+    return { width: w, height: h, fullscreen: isFs };
+  });
+
   ipcMain.on("update-diagnostic-state", (_, payload) => {
     writeLastDiagnosticState({
       source: "renderer",

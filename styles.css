@@ -2574,6 +2574,17 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   flex-wrap: wrap;
 }
 
+.settings-resolution-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.resolution-select {
+  flex: 1;
+  min-width: 180px;
+}
+
 #settings-modal button {
   border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 8px;

@@ -313,6 +313,21 @@
           <div id="background-strength-text" class="settings-hint">100%</div>
         </div>
         <div class="settings-section">
+          <div class="settings-label">畫面解析度</div>
+          <div class="settings-resolution-row">
+            <select id="resolution-select" class="custom-select resolution-select">
+              <option value="1280x768">1280 × 768（小）</option>
+              <option value="1440x864">1440 × 864（中）</option>
+              <option value="1600x960" selected>1600 × 960（預設）</option>
+              <option value="1920x1152">1920 × 1152（大）</option>
+              <option value="2560x1536">2560 × 1536（超大）</option>
+              <option value="fullscreen">全螢幕</option>
+            </select>
+            <button id="resolution-apply-btn" type="button">套用</button>
+          </div>
+          <div id="resolution-hint" class="settings-hint">目前：1600 × 960</div>
+        </div>
+        <div class="settings-section">
           <div class="settings-label">卡片圖片資料夾</div>
           <div id="deck-image-root-display" class="settings-hint" style="word-break:break-all;max-width:360px;">（使用內建路徑）</div>
           <div class="settings-actions">

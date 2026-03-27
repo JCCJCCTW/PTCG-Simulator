@@ -2429,6 +2429,12 @@ body.deck-builder-window #deck-builder-modal .deck-builder-modal-panel {
   height: auto;
 }
 
+#settings-modal .deck-save-modal-panel {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
 #chat-modal {
   place-items: start end;
   padding-top: 64px;

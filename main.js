@@ -173,7 +173,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: true
+      webSecurity: false
     }
   });
 
@@ -266,7 +266,7 @@ function createDeckBuilderWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: true
+      webSecurity: false
     }
   });
 

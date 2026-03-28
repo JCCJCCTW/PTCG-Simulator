@@ -15,7 +15,7 @@ on:
       version:
         description: 'Release version (e.g. 1.0.0)'
         required: true
-        default: '1.4.1'
+        default: '1.4.2'
 
 permissions:
   contents: write
@@ -138,7 +138,14 @@ jobs:
           body: |
             ## PTCG 寶可夢卡牌模擬器 v${{ inputs.version }}
 
-            ### ✨ v1.4.1 更新內容
+            ### ✨ v1.4.2 更新內容
+
+            #### 修復
+            - **牌組拖曳歸位**：拖曳卡片回牌組區現在會放到牌組最上方，下一抽正確抽到該卡片
+            - **PeerJS 連線**：修正多人連線載入失敗的問題，改為 HTML 預載方式
+
+            <details>
+            <summary>v1.4.1 更新內容</summary>
 
             #### 修復
             - **補抽視窗**：修正補抽按鈕可重複點擊的問題，點擊後立即鎖定並關閉視窗
@@ -146,6 +153,7 @@ jobs:
             - **招式選擇視窗**：修正面板高度異常撐滿畫面的問題
             - **攻擊廣播文字**：修正文字過長換行問題
             - **起手拖曳鎖定**：抽牌動畫期間鎖定卡片拖曳
+            </details>
 
             ---
 

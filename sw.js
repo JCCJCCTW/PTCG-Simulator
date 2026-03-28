@@ -1,4 +1,4 @@
-const CACHE_NAME = "ptcg-v1";
+const CACHE_NAME = "ptcg-v2";
 const CORE_ASSETS = [
   "./index.html",
   "./app.js",
@@ -6,7 +6,8 @@ const CORE_ASSETS = [
   "./assets/app-icon.png",
   "./assets/pokemon-card-back.png",
   "./wallpapers/mega_greninja.jpg",
-  "./deck-builder-data/cards.json"
+  "./deck-builder-data/cards.json",
+  "./vendor/peerjs.min.js"
 ];
 
 self.addEventListener("install", (event) => {

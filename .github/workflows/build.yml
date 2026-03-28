@@ -15,7 +15,7 @@ on:
       version:
         description: 'Release version (e.g. 1.0.0)'
         required: true
-        default: '1.4.2'
+        default: '1.4.3'
 
 permissions:
   contents: write
@@ -138,11 +138,27 @@ jobs:
           body: |
             ## PTCG 寶可夢卡牌模擬器 v${{ inputs.version }}
 
-            ### ✨ v1.4.2 更新內容
+            ### ✨ v1.4.3 更新內容
+
+            #### 新功能
+            - **版本號顯示**：右下角顯示當前版本號
+
+            #### 修復
+            - **牌組拖曳歸位**：拖曳卡片回牌組區放到最上方，下一抽正確抽到該卡片
+            - **圖片路徑設定**：支援直接指向 images 資料夾，設定後立即生效不需重新載入
+            - **PeerJS 連線**：修正 web 版多人連線載入失敗的問題
+
+            #### 效能
+            - **牌組清單卡圖優先載入**：牌組清單的卡圖最優先載入，卡片清單改為 lazy loading
+            - **圖片載入 timeout**：線上圖片超過 8 秒自動跳過，避免卡住載入佇列
+
+            <details>
+            <summary>v1.4.2 更新內容</summary>
 
             #### 修復
             - **牌組拖曳歸位**：拖曳卡片回牌組區現在會放到牌組最上方，下一抽正確抽到該卡片
             - **PeerJS 連線**：修正多人連線載入失敗的問題，改為 HTML 預載方式
+            </details>
 
             <details>
             <summary>v1.4.1 更新內容</summary>

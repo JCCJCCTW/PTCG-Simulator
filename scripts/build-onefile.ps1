@@ -10,7 +10,7 @@ $rceditExe = "C:\Users\Joe Chou\AppData\Local\electron-builder\Cache\winCodeSign
 $iconPath = Join-Path $projectRoot "assets\app-icon.ico"
 $commentPath = Join-Path $distDir "onefile-winrar-comment.txt"
 $customSfxModule = Join-Path $distDir "PTCG-SFX-Stub.exe"
-$outputExe = Join-Path $distDir "PTCG-JC-Simulator.exe"
+$outputExe = Join-Path $distDir "PTCG Simulator.exe"
 $deckBuilderDataSource = Join-Path $projectRoot "deck-builder-data"
 
 if (!(Test-Path $rarExe) -or !(Test-Path $sfxModule)) {
@@ -60,9 +60,10 @@ Title=PTCG Simulator
     try {
       Remove-Item $outputExe -Force
     } catch {
-      $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-      $outputExe = Join-Path $distDir "PTCG-JC-Simulator-$stamp.exe"
-      Write-Host "Primary output is locked; using fallback output: $outputExe"
+      $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+      $fallbackExe = Join-Path $distDir "PTCG Simulator_$timestamp.exe"
+      Write-Host "Old exe is locked, building to: $fallbackExe"
+      $outputExe = $fallbackExe
     }
   }
 
